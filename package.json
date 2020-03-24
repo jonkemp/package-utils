@@ -1,0 +1,44 @@
+{
+	"name": "@jonkemp/package-utils",
+	"version": "0.1.0",
+	"description": "Helper utility modules for collections, arrays, objects and more",
+	"main": "index.js",
+	"scripts": {
+		"lint": "eslint . --max-warnings 0",
+		"lint:fix": "eslint . --fix --max-warnings 0",
+		"test": "mocha"
+	},
+	"files": [
+		"index.js"
+	],
+	"repository": "jonkemp/package-utils",
+	"keywords": [
+		"helpers",
+		"utils",
+		"utilities",
+		"modules",
+		"collections",
+		"arrays",
+		"objects"
+	],
+	"author": {
+		"name": "Jonathan Kemp",
+		"email": "kempdogg@gmail.com",
+		"url": "http://jonkemp.com/"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/jonkemp/package-utils/issues"
+	},
+	"homepage": "https://github.com/jonkemp/package-utils#readme",
+	"devDependencies": {
+		"babel-eslint": "^10.1.0",
+		"eslint": "^6.8.0",
+		"flat-util": "^1.1.1",
+		"mocha": "^7.1.1"
+	},
+	"dependencies": {
+		"for-each-plus": "^1.0.0",
+		"map-plus": "^1.0.0"
+	}
+}
