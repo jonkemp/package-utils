@@ -1,6 +1,9 @@
 {
 	"name": "@jonkemp/package-utils",
 	"version": "0.1.0",
+	"publishConfig": {
+		"access": "public"
+	},
 	"description": "Helper utility modules for collections, arrays, objects and more",
 	"main": "index.js",
 	"scripts": {
