@@ -15,6 +15,33 @@ $ npm install @jonkemp/package-utils
 
 ## Usage
 
+### forEach
+
+Iterates over a list of elements, yielding each in turn to an iteratee function. The iteratee is bound to the context object, if one is passed. Each invocation of iteratee is called with three arguments: (element, index, list). If list is a JavaScript object, iteratee's arguments will be (value, key, list). Returns the list for chaining.
+
+```js
+forEach([1, 2, 3], alert);
+//=> alerts each number in turn...
+
+forEach({one: 1, two: 2, three: 3}, alert);
+//=> alerts each number value in turn...
+```
+
+### map
+
+Produces a new array of values by mapping each value in list through a transformation function (iteratee). The iteratee is passed three arguments: the value, then the index (or key) of the iteration, and finally a reference to the entire list.
+
+```js
+map([1, 2, 3], num => num * 3);
+//=> [3, 6, 9]
+
+map({one: 1, two: 2, three: 3}, (num, key) => num * 3);
+//=> [3, 6, 9]
+
+map([[1, 2], [3, 4]], first);
+//=> [1, 3]
+```
+
 ### find
 
 Looks through each value in the list, returning the first one that passes a truth test (predicate), or undefined if no value passes the test. The function returns as soon as it finds an acceptable element, and doesn't traverse the entire list. predicate is transformed through iteratee to facilitate shorthand syntaxes.
@@ -60,6 +87,18 @@ initial([5, 4, 3, 2, 1]);
 //=> [5, 4, 3, 2]
 ```
 
+### flatten
+
+Flattens a nested array (the nesting can be to any depth). If you pass shallow, the array will only be flattened a single level.
+
+```js
+flatten([1, [2], [3, [[4]]]]);
+//=> [1, 2, 3, 4];
+
+flatten([1, [2], [3, [[4]]]], true);
+//=> [1, 2, 3, [[4]]];
+```
+
 ### findIndex
 
 Similar to indexOf, returns the first index where the predicate truth test passes; otherwise returns -1.
@@ -70,6 +109,27 @@ findIndex([4, 6, 8, 12], isPrime);
 
 findIndex([4, 6, 7, 12], isPrime);
 //=> 2
+```
+
+### range
+
+A function to create flexibly-numbered lists of integers, handy for each and map loops. start, if omitted, defaults to 0; step defaults to 1. Returns a list of integers from start (inclusive) to stop (exclusive), incremented (or decremented) by step, exclusive. Note that ranges that stop before they start are considered to be zero-length instead of negative — if you'd like a negative range, use a negative step.
+
+```js
+range(10);
+//=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+range(1, 11);
+//=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+range(0, 30, 5);
+//=> [0, 5, 10, 15, 20, 25]
+
+range(0, -10, -1);
+//=> [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
+
+range(0);
+//=> []
 ```
 
 ### getKeys
@@ -206,6 +266,15 @@ Returns true if object is a Number (including NaN).
 
 ```js
 isNumber(8.4 * 5);
+//=> true
+```
+
+### isUndefined
+
+Returns true if value is undefined.
+
+```js
+isUndefined(window.missingVariable);
 //=> true
 ```
 
