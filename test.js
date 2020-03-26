@@ -1,6 +1,4 @@
 const assert = require('assert');
-const map = require('map-plus');
-const flatten = require('flat-util');
 const {
 	identity,
 	constant,
@@ -9,11 +7,12 @@ const {
 	allKeys,
 	values,
 	toPairs,
-	isArguments,
 	isObject,
+	isArguments,
+	isFunction,
 	isString,
 	isNumber,
-	isFunction,
+	isUndefined,
 	hasProperty,
 	property,
 	isMatch,
@@ -21,7 +20,11 @@ const {
 	findKey,
 	first,
 	initial,
+	flatten,
 	findIndex,
+	range,
+	forEach,
+	map,
 	find,
 	filter,
 	toArray
@@ -294,6 +297,32 @@ describe('isNumber', () => {
 
 	it('numeric strings are not numbers', () => {
 		assert.ok(!isNumber('1'));
+	});
+});
+
+describe('isUndefined', () => {
+	it('numbers are defined', () => {
+		assert.ok(!isUndefined(1));
+	});
+
+	it('null is defined', () => {
+		assert.ok(!isUndefined(null));
+	});
+
+	it('false is defined', () => {
+		assert.ok(!isUndefined(false));
+	});
+
+	it('NaN is defined', () => {
+		assert.ok(!isUndefined(NaN));
+	});
+
+	it('nothing is undefined', () => {
+		assert.ok(isUndefined());
+	});
+
+	it('undefined is undefined', () => {
+		assert.ok(isUndefined(void 0));
 	});
 });
 
@@ -736,6 +765,82 @@ describe('initial', () => {
 	});
 });
 
+describe('flatten', () => {
+	it('supports null', () => {
+		assert.deepEqual(flatten(null), []);
+	});
+
+	it('supports undefined', () => {
+		assert.deepEqual(flatten(void 0), []);
+	});
+
+	it('supports empty arrays', () => {
+		assert.deepEqual(flatten([[], [[]], []]), []);
+	});
+
+	it('can shallowly flatten empty arrays', () => {
+		assert.deepEqual(flatten([[], [[]], []], true), [[]]);
+	});
+
+	it('can flatten nested arrays', () => {
+		const list = [1, [2], [3, [[[4]]]]];
+
+		assert.deepEqual(flatten(list), [1, 2, 3, 4]);
+	});
+
+	it('can shallowly flatten nested arrays', () => {
+		const list = [1, [2], [3, [[[4]]]]];
+
+		assert.deepEqual(flatten(list, true), [1, 2, 3, [[[4]]]]);
+	});
+
+	it('works on an arguments object', () => {
+		const result = (function(...args) { return flatten(args); }(1, [2], [3, [[[4]]]]));
+
+		assert.deepEqual(result, [1, 2, 3, 4]);
+	});
+
+	it('can shallowly flatten arrays containing only other arrays', () => {
+		const list = [[1], [2], [3], [[4]]];
+
+		assert.deepEqual(flatten(list, true), [1, 2, 3, [4]]);
+	});
+
+	it('can flatten medium length arrays', () => {
+		assert.strictEqual(flatten([range(10), range(10), 5, 1, 3], true).length, 23);
+	});
+
+	it('can shallowly flatten medium length arrays', () => {
+		assert.strictEqual(flatten([range(10), range(10), 5, 1, 3]).length, 23);
+	});
+
+	it('can flatten array with nulls of size n', () => {
+		assert.strictEqual(flatten([new Array(10)]).length, 10);
+	});
+
+	it('can handle massive arrays', () => {
+		assert.strictEqual(flatten([new Array(1000000), range(56000), 5, 1, 3]).length, 1056003);
+	});
+
+	it('can handle massive arrays in shallow mode', () => {
+		assert.strictEqual(flatten([new Array(1000000), range(56000), 5, 1, 3], true).length, 1056003);
+	});
+
+	it('can handle very deep arrays', () => {
+		let x = range(100000);
+
+		for (let i = 0; i < 1000; i++) x = [x];
+		assert.deepEqual(flatten(x), range(100000));
+	});
+
+	it('can handle very deep arrays in shallow mode', () => {
+		let x = range(100000);
+
+		for (let i = 0; i < 1000; i++) x = [x];
+		assert.deepEqual(flatten(x, true), x[0]);
+	});
+});
+
 describe('findIndex', () => {
 	const objects = [
 		{a: 0, b: 0},
@@ -780,6 +885,144 @@ describe('findIndex', () => {
 
 		array.match = 55;
 		assert.strictEqual(findIndex(array, x => x === 55), -1);
+	});
+});
+
+describe('range', () => {
+	it('range with 0 as a first argument generates an empty array', () => {
+		assert.deepEqual(range(0), []);
+	});
+
+	it('range with a single positive argument generates an array of elements 0,1,2,...,n-1', () => {
+		assert.deepEqual(range(4), [0, 1, 2, 3]);
+	});
+
+	it('range with two arguments a &amp; b, a&lt;b generates an array of elements a,a+1,a+2,...,b-2,b-1', () => {
+		assert.deepEqual(range(5, 8), [5, 6, 7]);
+	});
+
+	it('range with three arguments a &amp; b &amp; c, c &lt; b-a, a &lt; b generates an array of elements a,a+c,a+2c,...,b - (multiplier of a) &lt; c', () => {
+		assert.deepEqual(range(3, 10, 3), [3, 6, 9]);
+	});
+
+	it('range with three arguments a &amp; b &amp; c, c &gt; b-a, a &lt; b generates an array with a single element, equal to a', () => {
+		assert.deepEqual(range(3, 10, 15), [3]);
+	});
+
+	it('range with three arguments a &amp; b &amp; c, a &gt; b, c &lt; 0 generates an array of elements a,a-c,a-2c and ends with the number not less than b', () => {
+		assert.deepEqual(range(12, 7, -2), [12, 10, 8]);
+	});
+
+	it('final example in the Python docs', () => {
+		assert.deepEqual(range(0, -10, -1), [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]);
+	});
+
+	it('should preserve -0', () => {
+		assert.strictEqual(1 / range(-0, 1)[0], -Infinity);
+	});
+
+	it('negative range generates descending array', () => {
+		assert.deepEqual(range(8, 5), [8, 7, 6]);
+	});
+
+	it('negative range generates descending array', () => {
+		assert.deepEqual(range(-3), [0, -1, -2]);
+	});
+});
+
+describe('forEach', () => {
+	it('each iterators provide value and iteration count', () => {
+		forEach([1, 2, 3], (num, i) => {
+			assert.strictEqual(num, i + 1);
+		});
+	});
+
+	it('context object property accessed', () => {
+		const answers = [];
+
+		forEach([1, 2, 3], function(num){ answers.push(num * this.multiplier); }, {multiplier: 5});
+		assert.deepEqual(answers, [5, 10, 15]);
+	});
+
+	it('can iterate a simple array', () => {
+		const answers = [];
+
+		forEach([1, 2, 3], num => { answers.push(num); });
+		assert.deepEqual(answers, [1, 2, 3]);
+	});
+
+	it('iterating over objects works, and ignores the object prototype', () => {
+		const answers = [];
+		const obj = {one: 1, two: 2, three: 3};
+
+		obj.constructor.prototype.four = 4;
+		forEach(obj, (value, key) => { answers.push(key); });
+		assert.deepEqual(answers, ['one', 'two', 'three']);
+		delete obj.constructor.prototype.four;
+	});
+
+	it('the function should be called only 3 times', () => {
+		let count = 0;
+		const obj = {1: 'foo', 2: 'bar', 3: 'baz'};
+
+		forEach(obj, () => { count++; });
+		assert.strictEqual(count, 3);
+	});
+
+	it('handles a null properly', () => {
+		let answers = 0;
+
+		forEach(null, () => { ++answers; });
+		assert.strictEqual(answers, 0);
+
+		forEach(false, () => {});
+
+		const a = [1, 2, 3];
+
+		assert.strictEqual(forEach(a, () => {}), a);
+		assert.strictEqual(forEach(null, () => {}), null);
+	});
+});
+
+describe('map', () => {
+	it('should produce a new array of values by mapping each value in list through an iteratee', () => {
+		assert.deepEqual(map([1, 2, 3], num => num * 3), [3, 6, 9]);
+		assert.deepEqual(map({one: 1, two: 2, three: 3}, num => num * 3), [3, 6, 9]);
+		assert.deepEqual(map([[1, 2], [3, 4]], first), [1, 3]);
+	});
+
+	it('should return doubled numbers', () => {
+		const doubled = map([1, 2, 3], num => num * 2);
+
+		assert.deepEqual(doubled, [2, 4, 6]);
+	});
+
+	it('should return tripled numbers with context', () => {
+		const tripled = map([1, 2, 3], function(num){ return num * this.multiplier; }, {multiplier: 3});
+
+		assert.deepEqual(tripled, [3, 6, 9]);
+	});
+
+	it('can use collection methods on Array-likes', () => {
+		const ids = map({length: 2, 0: {id: '1'}, 1: {id: '2'}}, ({id}) => id);
+
+		assert.deepEqual(ids, ['1', '2']);
+	});
+
+	it('should handle a null properly', () => {
+		assert.deepEqual(map(null, noop), []);
+	});
+
+	it('should call with proper context', () => {
+		assert.deepEqual(map([1], function() {
+			return this.length;
+		}, [5]), [1]);
+	});
+
+	it('should map predicate string to object properties', () => {
+		const people = [{name: 'moe', age: 30}, {name: 'curly', age: 50}];
+
+		assert.deepEqual(map(people, 'name'), ['moe', 'curly']);
 	});
 });
 
