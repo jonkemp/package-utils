@@ -1,6 +1,3 @@
-const map = require('map-plus');
-const forEach = require('for-each-plus');
-
 const shallowProperty = key => obj => obj == null ? void 0 : obj[key];
 
 const MAX_ARRAY_INDEX = 2 ** 53 - 1;
@@ -20,6 +17,8 @@ const isNumber = obj => toString.call(obj) === '[object Number]';
 const isArguments = obj => toString.call(obj) === '[object Arguments]';
 
 const isString = obj => toString.call(obj) === '[object String]';
+
+const isUndefined = obj => obj === void 0;
 
 const isObject = obj => {
 	const type = typeof obj;
@@ -180,6 +179,25 @@ const createPredicateIndexFinder = dir => (array, predicate, context) => {
 
 const findIndex = createPredicateIndexFinder(1);
 
+const range = (start, stop, step) => {
+	if (stop == null) {
+		stop = start || 0;
+		start = 0;
+	}
+	if (!step) {
+		step = stop < start ? -1 : 1;
+	}
+
+	const length = Math.max(Math.ceil((stop - start) / step), 0);
+	const range = Array(length);
+
+	for (let idx = 0; idx < length; idx++, start += step) {
+		range[idx] = start;
+	}
+
+	return range;
+};
+
 const findKey = (obj, predicate, context) => {
 	predicate = cb(predicate, context);
 	const keys = getKeys(obj);
@@ -189,6 +207,40 @@ const findKey = (obj, predicate, context) => {
 		key = keys[i];
 		if (predicate(obj[key], key, obj)) return key;
 	}
+};
+
+const forEach = (obj, iteratee, context) => {
+	iteratee = optimizeCb(iteratee, context);
+	if (isArrayLike(obj)) {
+		let i = 0;
+
+		for (const item of obj) {
+			iteratee(item, i++, obj);
+		}
+	} else {
+		const keys = getKeys(obj);
+
+		for (const key of keys) {
+			iteratee(obj[key], key, obj);
+		}
+	}
+
+	return obj;
+};
+
+const map = (obj, iteratee, context) => {
+	iteratee = cb(iteratee, context);
+	const keys = !isArrayLike(obj) && getKeys(obj);
+	const { length } = keys || obj;
+	const results = Array(length);
+
+	for (let index = 0; index < length; index++) {
+		const currentKey = keys ? keys[index] : index;
+
+		results[index] = iteratee(obj[currentKey], currentKey, obj);
+	}
+
+	return results;
 };
 
 const find = (obj, predicate, context) => {
@@ -230,13 +282,39 @@ const first = (array, n, guard) => {
 	return initial(array, array.length - n);
 };
 
+const baseFlatten = (input, shallow, strict, output = []) => {
+	let idx = output.length;
+
+	forEach(input, value => {
+		if (isArrayLike(value) && (Array.isArray(value) || isArguments(value))) {
+			if (shallow) {
+				let j = 0;
+				const len = value.length;
+
+				while (j < len) output[idx++] = value[j++];
+			} else {
+				baseFlatten(value, shallow, strict, output);
+				idx = output.length;
+			}
+		} else if (!strict) {
+			output[idx++] = value;
+		}
+	});
+
+	return output;
+};
+
+const flatten = (array, shallow) => baseFlatten(array, shallow, false);
+
 module.exports = {
 	getLength,
 	isArrayLike,
+	optimizeCb,
 	isFunction,
 	isNumber,
 	isArguments,
 	isString,
+	isUndefined,
 	isObject,
 	getKeys,
 	hasProperty,
@@ -252,10 +330,14 @@ module.exports = {
 	toPairs,
 	cb,
 	noop,
+	forEach,
+	map,
 	find,
 	filter,
 	toArray,
 	first,
 	initial,
-	findIndex
+	flatten,
+	findIndex,
+	range
 };
