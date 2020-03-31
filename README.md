@@ -42,51 +42,6 @@ map([[1, 2], [3, 4]], first);
 //=> [1, 3]
 ```
 
-### find
-
-Looks through each value in the list, returning the first one that passes a truth test (predicate), or undefined if no value passes the test. The function returns as soon as it finds an acceptable element, and doesn't traverse the entire list. predicate is transformed through iteratee to facilitate shorthand syntaxes.
-
-```js
-const even = find([1, 2, 3, 4, 5, 6], num => num % 2 == 0);
-//=> 2
-```
-
-### filter
-
-Looks through each value in the list, returning an array of all the values that pass a truth test (predicate). predicate is transformed through iteratee to facilitate shorthand syntaxes.
-
-```js
-const evens = filter([1, 2, 3, 4, 5, 6], num => num % 2 == 0);
-//=> [2, 4, 6]
-```
-
-### toArray
-
-Creates a real Array from the list (anything that can be iterated over). Useful for transmuting the arguments object.
-
-```js
-(function(...args) { return toArray(args).slice(1); })(1, 2, 3, 4);
-//=> [2, 3, 4]
-```
-
-### first
-
-Returns the first element of an array. Passing n will return the first n elements of the array.
-
-```js
-first([5, 4, 3, 2, 1]);
-//=> 5
-```
-
-### initial
-
-Returns everything but the last entry of the array. Especially useful on the arguments object. Pass n to exclude the last n elements from the result.
-
-```js
-initial([5, 4, 3, 2, 1]);
-//=> [5, 4, 3, 2]
-```
-
 ### flatten
 
 Flattens a nested array (the nesting can be to any depth). If you pass shallow, the array will only be flattened a single level.
@@ -97,48 +52,6 @@ flatten([1, [2], [3, [[4]]]]);
 
 flatten([1, [2], [3, [[4]]]], true);
 //=> [1, 2, 3, [[4]]];
-```
-
-### findIndex
-
-Similar to indexOf, returns the first index where the predicate truth test passes; otherwise returns -1.
-
-```js
-findIndex([4, 6, 8, 12], isPrime);
-//=> -1 // not found
-
-findIndex([4, 6, 7, 12], isPrime);
-//=> 2
-```
-
-### range
-
-A function to create flexibly-numbered lists of integers, handy for each and map loops. start, if omitted, defaults to 0; step defaults to 1. Returns a list of integers from start (inclusive) to stop (exclusive), incremented (or decremented) by step, exclusive. Note that ranges that stop before they start are considered to be zero-length instead of negative — if you'd like a negative range, use a negative step.
-
-```js
-range(10);
-//=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-range(1, 11);
-//=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-range(0, 30, 5);
-//=> [0, 5, 10, 15, 20, 25]
-
-range(0, -10, -1);
-//=> [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
-
-range(0);
-//=> []
-```
-
-### getKeys
-
-Retrieve all the names of the object's own enumerable properties.
-
-```js
-getKeys({one: 1, two: 2, three: 3});
-//=> ["one", "two", "three"]
 ```
 
 ### allKeys
@@ -152,36 +65,6 @@ function Stooge(name) {
 Stooge.prototype.silly = true;
 allKeys(new Stooge("Moe"));
 //=> ["name", "silly"]
-```
-
-### values
-
-Return all of the values of the object's own properties.
-
-```js
-values({one: 1, two: 2, three: 3});
-//=> [1, 2, 3]
-```
-
-### toPairs
-Convert an object into a list of [key, value] pairs. The opposite of object.
-
-```js
-toPairs({one: 1, two: 2, three: 3});
-//=> [["one", 1], ["two", 2], ["three", 3]]
-```
-
-### findKey
-
-Similar to findIndex but for keys in objects. Returns the key where the predicate truth test passes or undefined. predicate is transformed through iteratee to facilitate shorthand syntaxes.
-
-### hasProperty
-
-Does the object contain the given key? Identical to object.hasOwnProperty(key), but uses a safe reference to the hasOwnProperty function, in case it's been overridden accidentally.
-
-```js
-hasProperty({a: 1, b: 2, c: 3}, "b");
-//=> true
 ```
 
 ### property
@@ -208,40 +91,6 @@ const ready = matcher({selected: true, visible: true});
 const readyToGoList = filter(list, ready);
 ```
 
-### isMatch
-
-Tells you if the keys and values in properties are contained in object.
-
-```js
-const stooge = {name: 'moe', age: 32};
-isMatch(stooge, {age: 32});
-//=> true
-```
-
-### isObject
-
-Returns true if value is an Object. Note that JavaScript arrays and functions are objects, while (normal) strings and numbers are not.
-
-```js
-isObject({});
-//=> true
-
-isObject(1);
-//=> false
-```
-
-### isArguments
-
-Returns true if object is an Arguments object.
-
-```js
-(function(...args) { return isArguments(args); })(1, 2, 3);
-//=> true
-
-isArguments([1,2,3]);
-//=> false
-```
-
 ### isFunction
 
 Returns true if object is a Function.
@@ -249,15 +98,6 @@ Returns true if object is a Function.
 ```js
 isFunction(alert);
 // => true
-```
-
-### isString
-
-Returns true if object is a String.
-
-```js
-isString('moe');
-//=> true
 ```
 
 ### isNumber
@@ -297,14 +137,6 @@ Creates a function that returns the same value that is used as the argument of c
 const stooge = { name: 'moe' };
 stooge === constant(stooge)();
 //=> true
-```
-
-### noop
-
-Returns undefined irrespective of the arguments passed to it. Useful as the default for optional callback arguments.
-
-```js
-obj.initialize = noop;
 ```
 
 ---
