@@ -6,7 +6,8 @@ export default [{
 	output: {
 		file: '../flat-util/index.js',
 		format: 'cjs',
-		strict: false
+		strict: false,
+		exports: 'default'
 	},
 	plugins: [
 		commonjs(),
@@ -18,7 +19,8 @@ export default [{
 	output: {
 		file: '../for-each-plus/index.js',
 		format: 'cjs',
-		strict: false
+		strict: false,
+		exports: 'default'
 	},
 	plugins: [
 		commonjs(),
@@ -30,7 +32,8 @@ export default [{
 	output: {
 		file: '../map-plus/index.js',
 		format: 'cjs',
-		strict: false
+		strict: false,
+		exports: 'default'
 	},
 	plugins: [
 		commonjs(),
