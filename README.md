@@ -1,4 +1,4 @@
-# package-utils [![Build Status](https://travis-ci.com/jonkemp/package-utils.svg?branch=master)](https://travis-ci.com/jonkemp/package-utils)
+# package-utils ![Build Status](https://github.com/jonkemp/package-utils/actions/workflows/main.yml/badge.svg?branch=master)
 
 > Helper utility modules for collections, arrays, objects and more.
 
